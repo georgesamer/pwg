@@ -1,0 +1,503 @@
+<!-- ARTWORK UPLOAD TEMPLATE (artworks/upload.html) -->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Artwork - Church Festival</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .upload-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .upload-card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f8f9fa;
+        }
+        
+        .file-upload-area:hover {
+            border-color: #6366f1;
+            background: #f0f0ff;
+        }
+        
+        .file-upload-area.dragover {
+            border-color: #6366f1;
+            background: #e0e7ff;
+            transform: scale(1.02);
+        }
+        
+        .file-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 0.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .category-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .category-card:hover {
+            border-color: #6366f1;
+            transform: translateY(-2px);
+        }
+        
+        .category-card.selected {
+            border-color: #6366f1;
+            background: #f0f0ff;
+        }
+        
+        .btn-upload {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 2rem;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .btn-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+            color: white;
+        }
+        
+        [data-bs-theme="dark"] .file-upload-area {
+            background: #374151;
+            border-color: #4b5563;
+        }
+        
+        [data-bs-theme="dark"] .file-upload-area:hover {
+            background: #1f2937;
+            border-color: #6366f1;
+        }
+        
+        [data-bs-theme="dark"] .category-card.selected {
+            background: #1f2937;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100" data-bs-theme="light" id="app-body">
+    
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" th:href="@{/}">
+                <i class="fas fa-palette me-2"></i>Church Festival
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/artworks}">
+                            <i class="fas fa-images me-1"></i>Artworks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/dashboard}">
+                            <i class="fas fa-chart-bar me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/artworks/upload}">
+                            <i class="fas fa-upload me-1"></i>Upload
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light btn-sm me-2" id="theme-toggle" type="button">
+                            <i class="fas fa-moon" id="theme-icon"></i>
+                        </button>
+                    </li>
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>
+                            <span sec:authentication="name">Username</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/profile}">
+                                <i class="fas fa-user-cog me-2"></i>Profile
+                            </a></li>
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item" th:href="@{/admin}">
+                                    <i class="fas fa-cog me-2"></i>Admin
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="upload-container">
+            <!-- Page Header -->
+            <div class="text-center mb-5">
+                <h1 class="display-6 fw-bold">
+                    <i class="fas fa-cloud-upload-alt me-3 text-primary"></i>Upload Artwork
+                </h1>
+                <p class="lead text-muted">Share your creative work with the community</p>
+            </div>
+
+            <!-- Flash Messages -->
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span th:text="${error}">Error message</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Upload Form -->
+            <div class="card upload-card">
+                <div class="card-body p-4">
+                    <form th:action="@{/artworks/upload}" method="post" enctype="multipart/form-data" 
+                          th:object="${artwork}" id="uploadForm">
+                        
+                        <!-- Basic Information -->
+                        <div class="row mb-4">
+                            <div class="col-md-8">
+                                <label for="title" class="form-label fw-semibold">
+                                    <i class="fas fa-heading me-2"></i>Artwork Title *
+                                </label>
+                                <input type="text" class="form-control" th:field="*{title}" 
+                                       th:class="${#fields.hasErrors('title')} ? 'form-control is-invalid' : 'form-control'"
+                                       id="title" placeholder="Enter a descriptive title" required>
+                                <div th:if="${#fields.hasErrors('title')}" class="invalid-feedback">
+                                    <span th:errors="*{title}"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-tag me-2"></i>Category *
+                                </label>
+                                <div class="row g-2">
+                                    <div class="col-6" th:each="category : ${categories}">
+                                        <div class="card category-card text-center p-2" 
+                                             th:attr="data-category=${category.name()}">
+                                            <div class="card-body p-1">
+                                                <i th:class="${category.name() == 'PAINTING' ? 'fas fa-paint-brush' : 
+                                                              category.name() == 'SCULPTURE' ? 'fas fa-monument' :
+                                                              category.name() == 'PHOTOGRAPHY' ? 'fas fa-camera' :
+                                                              category.name() == 'DIGITAL_ART' ? 'fas fa-laptop' :
+                                                              category.name() == 'POETRY' ? 'fas fa-feather-alt' :
+                                                              category.name() == 'MUSIC' ? 'fas fa-music' :
+                                                              category.name() == 'DANCE' ? 'fas fa-running' :
+                                                              category.name() == 'DRAMA' ? 'fas fa-theater-masks' :
+                                                              category.name() == 'CRAFTS' ? 'fas fa-cut' : 'fas fa-question'}"
+                                                   style="color: #6366f1;"></i>
+                                                <small class="d-block mt-1" th:text="${category.displayName}">Category</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" th:field="*{category}" id="selectedCategory" required>
+                                <div class="invalid-feedback" id="categoryError" style="display: none;">
+                                    Please select a category
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-2"></i>Description
+                            </label>
+                            <textarea class="form-control" th:field="*{description}" 
+                                     id="description" rows="4" 
+                                     placeholder="Describe your artwork, inspiration, techniques used, etc. (optional)"
+                                     maxlength="1000"></textarea>
+                            <div class="form-text">
+                                <span id="charCount">0</span>/1000 characters
+                            </div>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-file-upload me-2"></i>Artwork File (Optional)
+                            </label>
+                            <div class="file-upload-area" id="fileUploadArea">
+                                <input type="file" name="file" id="fileInput" 
+                                       accept="image/*,video/*,audio/*,.txt,.doc,.docx,.pdf"
+                                       style="display: none;">
+                                <div id="uploadPrompt">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                    <h5>Drag & drop your file here</h5>
+                                    <p class="text-muted mb-3">or click to browse</p>
+                                    <button type="button" class="btn btn-outline-primary" id="browseBtn">
+                                        <i class="fas fa-folder-open me-2"></i>Browse Files
+                                    </button>
+                                    <small class="d-block mt-3 text-muted">
+                                        Supported formats: Images, Videos, Audio, Text documents<br>
+                                        Maximum file size: 50MB
+                                    </small>
+                                </div>
+                                <div id="filePreview" style="display: none;">
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <div class="text-center">
+                                            <div id="previewContent"></div>
+                                            <p class="mt-3 mb-2"><strong id="fileName"></strong></p>
+                                            <p class="text-muted small" id="fileSize"></p>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" id="removeFile">
+                                                <i class="fas fa-times me-2"></i>Remove File
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Text Content for Text-based Artworks -->
+                        <div class="mb-4" id="textContentSection" style="display: none;">
+                            <label for="textContent" class="form-label fw-semibold">
+                                <i class="fas fa-file-text me-2"></i>Text Content
+                            </label>
+                            <textarea class="form-control" id="textContent" rows="10" 
+                                     placeholder="Enter your poem, story, or other text-based artwork here..."></textarea>
+                            <div class="form-text">
+                                For poetry, stories, or other text-based artworks
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/artworks}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-upload" id="submitBtn">
+                                <i class="fas fa-upload me-2"></i>Upload Artwork
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card mt-4" style="border-left: 4px solid #6366f1;">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-lightbulb me-2 text-warning"></i>Tips for Great Submissions
+                    </h6>
+                    <ul class="mb-0 small">
+                        <li>Choose a descriptive and engaging title for your artwork</li>
+                        <li>Provide context about your inspiration and creation process</li>
+                        <li>Ensure image/video files are high quality but under 50MB</li>
+                        <li>Select the most appropriate category for better discoverability</li>
+                        <li>Text-based artworks (poetry, stories) can be submitted without files</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <p class="mb-1">&copy; 2024 Church Festival Art Platform</p>
+                    <p class="text-muted small mb-0">Showcasing artistic talents from our community</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="d-flex justify-content-md-end justify-content-start gap-3">
+                        <a href="#" class="text-light"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const body = document.getElementById('app-body');
+
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        body.setAttribute('data-bs-theme', currentTheme);
+        updateThemeIcon(currentTheme);
+
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = body.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            body.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        function updateThemeIcon(theme) {
+            themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Category selection
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                document.getElementById('selectedCategory').value = this.getAttribute('data-category');
+                document.getElementById('categoryError').style.display = 'none';
+            });
+        });
+
+        // Character counter for description
+        const description = document.getElementById('description');
+        const charCount = document.getElementById('charCount');
+        
+        description.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+
+        // File upload functionality
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const browseBtn = document.getElementById('browseBtn');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const filePreview = document.getElementById('filePreview');
+        const removeFileBtn = document.getElementById('removeFile');
+
+        browseBtn.addEventListener('click', () => fileInput.click());
+        fileUploadArea.addEventListener('click', (e) => {
+            if (e.target === fileUploadArea || e.target === uploadPrompt) {
+                fileInput.click();
+            }
+        });
+
+        // Drag and drop
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.add('dragover');
+        });
+
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.classList.remove('dragover');
+        });
+
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        removeFileBtn.addEventListener('click', () => {
+            fileInput.value = '';
+            uploadPrompt.style.display = 'block';
+            filePreview.style.display = 'none';
+        });
+
+        function handleFile(file) {
+            // Validate file size (50MB)
+            if (file.size > 50 * 1024 * 1024) {
+                alert('File size exceeds 50MB limit. Please choose a smaller file.');
+                return;
+            }
+
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+
+            const previewContent = document.getElementById('previewContent');
+            
+            if (file.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.className = 'file-preview';
+                previewContent.innerHTML = '';
+                previewContent.appendChild(img);
+            } else if (file.type.startsWith('video/')) {
+                const video = document.createElement('video');
+                video.src = URL.createObjectURL(file);
+                video.className = 'file-preview';
+                video.controls = true;
+                previewContent.innerHTML = '';
+                previewContent.appendChild(video);
+            } else {
+                previewContent.innerHTML = `<i class="fas fa-file fa-4x text-primary"></i>`;
+            }
+
+            uploadPrompt.style.display = 'none';
+            filePreview.style.display = 'block';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Form validation
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            const category = document.getElementById('selectedCategory').value;
+            if (!category) {
+                e.preventDefault();
+                document.getElementById('categoryError').style.display = 'block';
+                document.querySelector('.category-card').scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        // Show/hide text content section based on category
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                const textSection = document.getElementById('textContentSection');
+                
+                if (category === 'POETRY' || category === 'OTHER') {
+                    textSection.style.display = 'block';
+                } else {
+                    textSection.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

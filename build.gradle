@@ -1,0 +1,71 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.0'
+}
+
+group = 'com.church'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot Starters
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    
+    // Swagger/OpenAPI Documentation
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    
+    // PostgreSQL Database
+    implementation 'org.postgresql:postgresql:42.6.0'
+    
+    // File Upload
+    implementation 'commons-fileupload:commons-fileupload:1.5'
+    implementation 'commons-io:commons-io:2.11.0'
+    
+    // Cloudinary (core + http44 for compatibility with Java 11+)
+    implementation 'com.cloudinary:cloudinary-core:1.34.0'
+    implementation 'com.cloudinary:cloudinary-http44:1.34.0'
+    
+    // JWT Security
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+    
+    // Devtools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // JSON Processing
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+bootRun {
+    mainClass = 'com.church.festival.ChurchFestivalApplication'
+}

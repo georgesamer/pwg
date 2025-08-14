@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle != null ? pageTitle + ' - Church Festival' : 'Church Festival'}">Church Festival</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body class="d-flex flex-column min-vh-100" data-bs-theme="light" id="app-body">
+    
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" th:href="@{/}">
+                <i class="fas fa-palette me-2"></i>Church Festival
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/artworks}">
+                            <i class="fas fa-images me-1"></i>Artworks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/dashboard}">
+                            <i class="fas fa-chart-bar me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'WORKER')">
+                        <a class="nav-link" th:href="@{/artworks/upload}">
+                            <i class="fas fa-upload me-1"></i>Upload
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <!-- Theme Toggle -->
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light btn-sm me-2" id="theme-toggle" type="button">
+                            <i class="fas fa-moon" id="theme-icon"></i>
+                        </button>
+                    </li>
+                    
+                    <!-- User Menu -->
+                    <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>
+                            <span sec:authentication="name">Username</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/profile}">
+                                <i class="fas fa-user-cog me-2"></i>Profile
+                            </a></li>
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item" th:href="@{/admin}">
+                                    <i class="fas fa-cog me-2"></i>Admin
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Login/Register -->
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
+                        <a class="nav-link" th:href="@{/login}">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
+                        <a class="nav-link" th:href="@{/register}">
+                            <i class="fas fa-user-plus me-1"></i>Register
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show m-3" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1" th:fragment="content">
+        <!-- Content will be replaced by child templates -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <p class="mb-1">&copy; 2024 Church Festival Art Platform</p>
+                    <p class="text-muted small mb-0">Showcasing artistic talents from our community</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="d-flex justify-content-md-end justify-content-start gap-3">
+                        <a href="#" class="text-decoration-none">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-decoration-none">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-decoration-none">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script th:src="@{/js/app.js}"></script>
+    
+    <!-- Page-specific scripts -->
+    <th:block th:fragment="scripts">
+        <!-- Scripts will be added by child templates -->
+    </th:block>
+</body>
+</html>
