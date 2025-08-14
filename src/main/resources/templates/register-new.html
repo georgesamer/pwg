@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Church Festival</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+</head>
+<body data-bs-theme="light" id="app-body">
+    <div class="auth-container">
+        <div class="auth-card" style="max-width: 500px;">
+            <div class="auth-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-user-plus me-2"></i>Join Our Community
+                </h2>
+                <p class="mb-0 mt-2">Create your account to participate</p>
+            </div>
+            
+            <div class="p-4">
+                <!-- Flash Messages -->
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${error}">Error message</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <form th:action="@{/register}" method="post" th:object="${user}" class="needs-validation" novalidate>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" th:field="*{firstName}" 
+                                       th:class="${#fields.hasErrors('firstName')} ? 'form-control is-invalid' : 'form-control'"
+                                       id="firstName" placeholder="First Name" required>
+                                <label for="firstName">
+                                    <i class="fas fa-user me-2"></i>First Name
+                                </label>
+                                <div th:if="${#fields.hasErrors('firstName')}" class="invalid-feedback">
+                                    <span th:errors="*{firstName}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" th:field="*{lastName}"
+                                       th:class="${#fields.hasErrors('lastName')} ? 'form-control is-invalid' : 'form-control'"
+                                       id="lastName" placeholder="Last Name" required>
+                                <label for="lastName">
+                                    <i class="fas fa-user me-2"></i>Last Name
+                                </label>
+                                <div th:if="${#fields.hasErrors('lastName')}" class="invalid-feedback">
+                                    <span th:errors="*{lastName}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" th:field="*{username}"
+                               th:class="${#fields.hasErrors('username')} ? 'form-control is-invalid' : 'form-control'"
+                               id="username" placeholder="Username" required>
+                        <label for="username">
+                            <i class="fas fa-at me-2"></i>Username
+                        </label>
+                        <div th:if="${#fields.hasErrors('username')}" class="invalid-feedback">
+                            <span th:errors="*{username}"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" th:field="*{email}"
+                               th:class="${#fields.hasErrors('email')} ? 'form-control is-invalid' : 'form-control'"
+                               id="email" placeholder="Email" required>
+                        <label for="email">
+                            <i class="fas fa-envelope me-2"></i>Email Address
+                        </label>
+                        <div th:if="${#fields.hasErrors('email')}" class="invalid-feedback">
+                            <span th:errors="*{email}"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-floating mb-4">
+                        <input type="password" class="form-control" th:field="*{password}"
+                               th:class="${#fields.hasErrors('password')} ? 'form-control is-invalid' : 'form-control'"
+                               id="password" placeholder="Password" required minlength="6">
+                        <label for="password">
+                            <i class="fas fa-lock me-2"></i>Password
+                        </label>
+                        <div th:if="${#fields.hasErrors('password')}" class="invalid-feedback">
+                            <span th:errors="*{password}"></span>
+                        </div>
+                        <div class="form-text">Password must be at least 6 characters long</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-auth mb-3">
+                        <i class="fas fa-user-plus me-2"></i>Create Account
+                    </button>
+                    
+                    <div class="text-center">
+                        <p class="mb-0">Already have an account? 
+                            <a th:href="@{/login}" class="text-decoration-none fw-semibold">Sign in</a>
+                        </p>
+                        <a th:href="@{/}" class="text-decoration-none">
+                            <i class="fas fa-home me-1"></i>Back to Home
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

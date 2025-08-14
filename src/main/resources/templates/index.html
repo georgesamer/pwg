@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Church Festival</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    
+    <!-- Navigation Fragment -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+    
+    <!-- Flash Messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show m-3" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-content">
+                        <h1 class="display-4 fw-bold mb-4">Church Festival Art Platform</h1>
+                        <p class="lead mb-4">Discover, appreciate, and celebrate the artistic talents within our church community. Vote for your favorites and join the conversation!</p>
+                        <div class="d-flex flex-wrap gap-3">
+                            <a th:href="@{/artworks}" class="btn btn-custom btn-lg">
+                                <i class="fas fa-images me-2"></i>Browse Artworks
+                            </a>
+                            <a th:href="@{/dashboard}" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-chart-bar me-2"></i>View Results
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="hero-image">
+                        <i class="fas fa-palette" style="font-size: 12rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center section-title">Platform Features</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="fas fa-vote-yea fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="card-title">Vote for Favorites</h5>
+                            <p class="card-text">Support your favorite artworks by voting. Each user gets one vote per artwork to ensure fair representation.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="fas fa-comments fa-3x text-info"></i>
+                            </div>
+                            <h5 class="card-title">Community Discussion</h5>
+                            <p class="card-text">Engage with artists and other community members through comments and discussions about each artwork.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="fas fa-trophy fa-3x text-warning"></i>
+                            </div>
+                            <h5 class="card-title">Real-time Results</h5>
+                            <p class="card-text">Track voting progress and see which artworks are leading in real-time through our interactive dashboard.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Artworks -->
+    <section class="py-5 bg-light" th:if="${!featuredArtworks.empty}">
+        <div class="container">
+            <h2 class="text-center section-title">Featured Artworks</h2>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6" th:each="artwork : ${featuredArtworks}">
+                    <div th:replace="fragments/artwork-card :: artwork-card(${artwork})"></div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a th:href="@{/artworks}" class="btn btn-custom">
+                    <i class="fas fa-images me-2"></i>View All Artworks
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-5" sec:authorize="!isAuthenticated()">
+        <div class="container text-center">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <h2 class="section-title">Join Our Community</h2>
+                    <p class="lead mb-4">Register now to vote for your favorite artworks, leave comments, and be part of our church's creative celebration!</p>
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a th:href="@{/register}" class="btn btn-custom btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Register Now
+                        </a>
+                        <a th:href="@{/login}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Already have an account?
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Fragment -->
+    <div th:replace="fragments/footer :: footer"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

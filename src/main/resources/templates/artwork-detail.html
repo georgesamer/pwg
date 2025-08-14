@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${artwork.title} + ' - Church Festival'">Artwork Detail - Church Festival</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    
+    <!-- Navigation Fragment -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+    
+    <!-- Flash Messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show m-3" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 py-4">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/artworks}">Artworks</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="${artwork.title}">Artwork Title</li>
+                </ol>
+            </nav>
+
+            <div class="row">
+                <!-- Artwork Image -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div th:if="${artwork.hasMedia()}" class="position-relative">
+                            <img th:src="${artwork.fileUrl}" 
+                                 th:alt="${artwork.title}" 
+                                 class="card-img-top img-fluid" 
+                                 style="max-height: 600px; object-fit: contain;">
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-primary fs-6" th:text="${artwork.category.displayName}">Category</span>
+                            </div>
+                        </div>
+                        <div th:unless="${artwork.hasMedia()}" class="card-body text-center py-5">
+                            <i class="fas fa-image fa-4x text-muted mb-3"></i>
+                            <p class="text-muted">No image available</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Artwork Details -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h1 class="card-title h3" th:text="${artwork.title}">Artwork Title</h1>
+                            
+                            <!-- Artist Info -->
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-user-circle fa-2x text-muted me-3"></i>
+                                <div>
+                                    <h6 class="mb-0" th:text="${artwork.uploadedBy.fullName}">Artist Name</h6>
+                                    <small class="text-muted">Artist</small>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-4">
+                                <h6>Description</h6>
+                                <p class="text-muted" th:text="${artwork.description ?: 'No description provided'}">
+                                    Artwork description...
+                                </p>
+                            </div>
+
+                            <!-- Stats -->
+                            <div class="row text-center mb-4">
+                                <div class="col-6">
+                                    <div class="border-end">
+                                        <h4 class="text-primary mb-0" th:text="${artwork.voteCount}">0</h4>
+                                        <small class="text-muted">Votes</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="text-info mb-0" th:text="${artwork.commentCount ?: 0}">0</h4>
+                                    <small class="text-muted">Comments</small>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-grid gap-2" sec:authorize="isAuthenticated()">
+                                <button class="btn btn-primary" onclick="voteForArtwork()" id="voteBtn">
+                                    <i class="fas fa-heart me-2"></i>Vote for this Artwork
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="toggleComments()">
+                                    <i class="fas fa-comments me-2"></i>View Comments
+                                </button>
+                            </div>
+
+                            <!-- Login Prompt -->
+                            <div class="text-center" sec:authorize="!isAuthenticated()">
+                                <p class="text-muted mb-3">Login to vote and comment</p>
+                                <a th:href="@{/login}" class="btn btn-primary">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                                </a>
+                            </div>
+
+                            <!-- Metadata -->
+                            <hr>
+                            <div class="small text-muted">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Category:</span>
+                                    <span th:text="${artwork.category.displayName}">Category</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Uploaded:</span>
+                                    <span th:text="${#temporals.format(artwork.createdAt, 'MMM dd, yyyy')}">Date</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>ID:</span>
+                                    <span th:text="${artwork.id}">#123</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="row mt-4" id="commentsSection" style="display: none;">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-comments me-2"></i>Comments
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Add Comment Form -->
+                            <div sec:authorize="isAuthenticated()" class="mb-4">
+                                <form id="commentForm" onsubmit="submitComment(event)">
+                                    <div class="mb-3">
+                                        <textarea class="form-control" id="commentText" rows="3" 
+                                                placeholder="Share your thoughts about this artwork..." required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane me-2"></i>Post Comment
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Comments List -->
+                            <div id="commentsList">
+                                <div class="text-center text-muted py-4">
+                                    <i class="fas fa-comments fa-2x mb-2"></i>
+                                    <p>No comments yet. Be the first to share your thoughts!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Fragment -->
+    <div th:replace="fragments/footer :: footer"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+
+    <script th:inline="javascript">
+        const artworkId = /*[[${artwork.id}]]*/ 0;
+
+        function voteForArtwork() {
+            fetch(`/api/artworks/${artworkId}/vote`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload(); // Refresh to show updated vote count
+                } else {
+                    alert('Failed to vote: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while voting');
+            });
+        }
+
+        function toggleComments() {
+            const commentsSection = document.getElementById('commentsSection');
+            if (commentsSection.style.display === 'none') {
+                commentsSection.style.display = 'block';
+                loadComments();
+            } else {
+                commentsSection.style.display = 'none';
+            }
+        }
+
+        function loadComments() {
+            fetch(`/api/artworks/${artworkId}/comments`)
+                .then(response => response.json())
+                .then(comments => {
+                    const commentsList = document.getElementById('commentsList');
+                    if (comments.length === 0) {
+                        commentsList.innerHTML = `
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-comments fa-2x mb-2"></i>
+                                <p>No comments yet. Be the first to share your thoughts!</p>
+                            </div>
+                        `;
+                    } else {
+                        commentsList.innerHTML = comments.map(comment => `
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">${comment.author.fullName}</h6>
+                                        <p class="mb-1">${comment.content}</p>
+                                        <small class="text-muted">${new Date(comment.createdAt).toLocaleDateString()}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading comments:', error);
+                });
+        }
+
+        function submitComment(event) {
+            event.preventDefault();
+            const commentText = document.getElementById('commentText').value;
+            
+            fetch(`/api/artworks/${artworkId}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ content: commentText })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('commentText').value = '';
+                    loadComments(); // Reload comments
+                } else {
+                    alert('Failed to post comment: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while posting comment');
+            });
+        }
+    </script>
+</body>
+</html>
