@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, render_template, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,11 +8,12 @@ import os
 import uuid
 from functools import wraps
 
-app = Flask(__name__)
+# Ensure Flask serves the local `static` and `templates` directories inside this project
+app = Flask(__name__, static_folder='static', template_folder='templates')
 app.config['SECRET_KEY'] = 'your-secret-key-change-this'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///festival_art.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 db = SQLAlchemy(app)
@@ -374,7 +375,8 @@ def upload_artwork():
     
     return jsonify({
         'message': 'Artwork uploaded successfully and is pending approval',
-        'artwork_id': artwork.id
+        'artwork_id': artwork.id,
+        'file_url': f"/static/uploads/{unique_filename}"
     }), 201
 
 # Voting Routes
@@ -544,6 +546,18 @@ def not_found(error):
 def internal_error(error):
     db.session.rollback()
     return jsonify({'error': 'Internal server error'}), 500
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 
 if __name__ == '__main__':
+    # Create DB and default categories on first run (inside app context)
+    with app.app_context():
+        create_tables()
     app.run(debug=True, host='0.0.0.0', port=5000)
