@@ -1,0 +1,447 @@
+/* Original styles */
+.main b {
+    font-size: 200%;
+}
+
+.main {
+    color: white;
+    text-align: center;
+    direction: rtl;
+    font-size: 200%;
+    padding: 20px 0;
+}
+
+body {
+    background-image: linear-gradient(to right, rgb(102, 7, 121), rgb(32, 31, 31));
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.space {
+    background-color: rgb(46, 41, 41);
+    height: 50px;
+    text-align: center;
+    color: white;
+    padding-top: 15px;
+    margin: 20px 0;
+}
+
+.space b{
+    background-color: rgb(102, 7, 121);
+    border-radius: 10px;
+    font-size: 200%;
+    padding: 10px 20px;
+}
+
+/* Legacy activity styles for backward compatibility */
+.coral {
+    margin-left: 5%;
+    color: white;
+    font-size: large;
+    margin-top: 20%;
+    direction: rtl;
+    display: inline-block;
+}
+
+.barmaga {
+    margin-left: 30%;
+    color: white;
+    font-size: large;
+    margin-top: 20%;
+    direction: rtl;
+    display: inline-block;
+}
+
+.Glory {
+    margin-left: 5%;
+    color: white;
+    font-size: large;
+    direction: rtl;
+    display: inline-block;
+}
+
+.madaresa7d {
+    margin-left: 30%;
+    color: white;
+    font-size: large;
+    margin-top: 20%;
+    direction: rtl;
+    display: inline-block;
+}
+
+.al7an {
+    margin-left: 5%;
+    color: white;
+    font-size: large;
+    margin-top: 20%;
+    direction: rtl;
+    display: inline-block;
+}
+
+.shmamsa {
+    margin-left: 30%;
+    color: white;
+    font-size: large;
+    margin-top: 20%;
+    direction: rtl;
+    display: inline-block;
+}
+
+/* Legacy favorite button styles */
+.fav1, .fav2, .fav3, .fav4, .fav5, .fav6 {
+    font-size: large;
+    border: solid;
+    color: white;
+    display: inline-block;
+    margin-top: 5%;
+    margin-right: 45%;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.fav1:hover, .fav2:hover, .fav3:hover, .fav4:hover, .fav5:hover, .fav6:hover {
+    background-color: white;
+    color: black;
+}
+
+/* New integrated styles */
+
+/* Authentication Section */
+.auth-section {
+    background-color: rgba(46, 41, 41, 0.8);
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 15px;
+    max-width: 400px;
+    text-align: center;
+    color: white;
+}
+
+.auth-form {
+    display: none;
+}
+
+.auth-form.active {
+    display: block;
+}
+
+.auth-form input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    direction: ltr;
+}
+
+.auth-form button {
+    background-color: rgb(102, 7, 121);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.auth-form button:hover {
+    background-color: rgb(82, 5, 101);
+}
+
+.user-info {
+    color: white;
+    text-align: center;
+    margin: 20px 0;
+    direction: rtl;
+}
+
+.user-info button {
+    background-color: rgb(102, 7, 121);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 5px;
+    transition: background-color 0.3s ease;
+}
+
+.user-info button:hover {
+    background-color: rgb(82, 5, 101);
+}
+
+/* Statistics Section */
+.stats-section {
+    background-color: rgba(46, 41, 41, 0.9);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 15px;
+    max-width: 800px;
+    direction: rtl;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.stat-item {
+    background-color: rgb(102, 7, 121);
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2em;
+    font-weight: bold;
+    display: block;
+}
+
+.stat-label {
+    font-size: 1em;
+    margin-top: 5px;
+}
+
+/* Activity Cards */
+.activities-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.activity-card {
+    color: white;
+    font-size: large;
+    direction: rtl;
+    background-color: rgba(46, 41, 41, 0.7);
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    position: relative;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.activity-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(102, 7, 121, 0.3);
+}
+
+.activity-content {
+    flex-grow: 1;
+}
+
+.activity-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: rgb(102, 7, 121);
+    margin-bottom: 15px;
+}
+
+.vote-section {
+    margin-top: 20px;
+}
+
+.vote-btn {
+    font-size: large;
+    border: 2px solid white;
+    color: white;
+    background-color: transparent;
+    padding: 10px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 5px;
+}
+
+.vote-btn:hover {
+    background-color: white;
+    color: black;
+}
+
+.vote-btn.voted {
+    background-color: rgb(102, 7, 121);
+    border-color: rgb(102, 7, 121);
+}
+
+.vote-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.vote-count {
+    color: rgb(102, 7, 121);
+    font-weight: bold;
+    margin-top: 10px;
+    font-size: 1.1em;
+}
+
+/* Upload Section */
+.upload-section {
+    background-color: rgba(46, 41, 41, 0.9);
+    color: white;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 15px;
+    max-width: 500px;
+    direction: rtl;
+    text-align: center;
+}
+
+.upload-form {
+    display: none;
+}
+
+.upload-form.active {
+    display: block;
+}
+
+.upload-form input, .upload-form select, .upload-form textarea {
+    width: 90%;
+    padding: 10px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.upload-form textarea {
+    min-height: 80px;
+    resize: vertical;
+    direction: rtl;
+}
+
+.upload-form input[type="file"] {
+    background-color: white;
+    cursor: pointer;
+}
+
+.toggle-btn {
+    background-color: rgb(102, 7, 121);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.toggle-btn:hover {
+    background-color: rgb(82, 5, 101);
+}
+
+/* Loading and Messages */
+.loading {
+    display: none;
+    color: white;
+    text-align: center;
+    margin: 20px;
+    font-size: 1.2em;
+}
+
+.message {
+    padding: 15px;
+    margin: 10px auto;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 500px;
+    display: none;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.message.success {
+    background-color: #4caf50;
+    color: white;
+    border: 2px solid #45a049;
+}
+
+.message.error {
+    background-color: #f44336;
+    color: white;
+    border: 2px solid #da190b;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .activities-container {
+        grid-template-columns: 1fr;
+        padding: 10px;
+    }
+    
+    .activity-card {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .main {
+        font-size: 150%;
+        padding: 10px;
+    }
+    
+    .space b {
+        font-size: 150%;
+        padding: 5px 15px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .auth-section, .upload-section {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .auth-form input, .upload-form input, .upload-form select, .upload-form textarea {
+        width: 85%;
+    }
+}
+
+@media (max-width: 480px) {
+    .main b {
+        font-size: 150%;
+    }
+    
+    .main {
+        font-size: 120%;
+        padding: 5px;
+    }
+    
+    .activity-title {
+        font-size: 1.1em;
+    }
+    
+    .vote-btn {
+        padding: 8px 20px;
+        font-size: medium;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-number {
+        font-size: 1.5em;
+    }
+}

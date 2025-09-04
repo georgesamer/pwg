@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مهرجان الكرازة المرقسية 2026</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+
+    <div class="main">
+        <b>مهرجان الكرازة المرقسية 2026</b>
+        <br>
+        يضم مهرجان الكرازة لهذه السنة العديد من الاعمال الفنية المتميزة 
+        <br>
+        قم بالتصويت للعمل الفني المفضل لك
+    </div>
+
+    <!-- Authentication Section -->
+    <div class="auth-section" id="authSection">
+        <div class="auth-form active" id="loginForm">
+            <h3>تسجيل الدخول</h3>
+            <input type="text" id="loginUsername" placeholder="اسم المستخدم" required>
+            <input type="password" id="loginPassword" placeholder="كلمة المرور" required>
+            <button onclick="login()">دخول</button>
+            <button onclick="showRegisterForm()">حساب جديد</button>
+        </div>
+
+        <div class="auth-form" id="registerForm">
+            <h3>إنشاء حساب جديد</h3>
+            <input type="text" id="registerUsername" placeholder="اسم المستخدم" required>
+            <input type="email" id="registerEmail" placeholder="البريد الإلكتروني" required>
+            <input type="password" id="registerPassword" placeholder="كلمة المرور" required>
+            <button onclick="register()">إنشاء حساب</button>
+            <button onclick="showLoginForm()">لدي حساب بالفعل</button>
+        </div>
+    </div>
+
+    <div class="user-info" id="userInfo" style="display: none;">
+        <span>مرحباً <span id="currentUsername"></span></span>
+        <button onclick="logout()">خروج</button>
+        <button onclick="toggleUploadSection()">إضافة عمل فني</button>
+    </div>
+
+    <!-- Upload Section -->
+    <div class="upload-section" id="uploadSection">
+        <button class="toggle-btn" onclick="toggleUploadForm()">إضافة عمل فني جديد</button>
+        <div class="upload-form" id="uploadForm">
+            <h3>إضافة عمل فني</h3>
+            <input type="text" id="artworkTitle" placeholder="عنوان العمل الفني" required>
+            <textarea id="artworkDescription" placeholder="وصف العمل الفني"></textarea>
+            <label for="artworkCategory">فئة العمل الفني:</label>
+            <select id="artworkCategory" aria-label="فئة العمل الفني">
+                <option value="">اختر الفئة</option>
+            </select>
+            <label for="artworkFile">اختر صورة العمل الفني:</label>
+            <input type="file" id="artworkFile" accept="image/*" title="اختر صورة العمل الفني" required>
+            <button onclick="uploadArtwork()">رفع العمل الفني</button>
+        </div>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="stats-section">
+        <h2>إحصائيات المهرجان</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-number" id="totalArtworks">0</span>
+                <span class="stat-label">الأعمال الفنية</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="totalVotes">0</span>
+                <span class="stat-label">إجمالي الأصوات</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="activeParticipants">0</span>
+                <span class="stat-label">المشاركون النشطون</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="totalComments">0</span>
+                <span class="stat-label">التعليقات</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="space"><b>الاعمال الفنية</b></div>
+
+    <div class="message" id="messageBox"></div>
+    <div class="loading" id="loading">جاري التحميل...</div>
+
+    <!-- Activities Container -->
+    <div class="activities-container" id="activitiesContainer">
+        <!-- Dynamic content will be loaded here -->
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let artworks = [];
+        let categories = [];
+        let userVotes = new Set();
+
+        // API Base URL
+        const API_BASE = 'http://localhost:5000/api';
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadCategories();
+            loadArtworks();
+            loadStatistics();
+        });
+
+        // Authentication Functions
+        async function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showMessage('يرجى إدخال اسم المستخدم وكلمة المرور', 'error');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentUser = data.user;
+                    updateAuthUI();
+                    loadArtworks(); // Reload to show vote status
+                    showMessage('تم تسجيل الدخول بنجاح', 'success');
+                } else {
+                    showMessage(data.error || 'فشل في تسجيل الدخول', 'error');
+                }
+            } catch (error) {
+                showMessage('خطأ في الاتصال بالخادم', 'error');
+            }
+
+            showLoading(false);
+        }
+
+        async function register() {
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            if (!username || !email || !password) {
+                showMessage('يرجى ملء جميع الحقول', 'error');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentUser = data.user;
+                    updateAuthUI();
+                    loadArtworks();
+                    showMessage('تم إنشاء الحساب بنجاح', 'success');
+                } else {
+                    showMessage(data.error || 'فشل في إنشاء الحساب', 'error');
+                }
+            } catch (error) {
+                showMessage('خطأ في الاتصال بالخادم', 'error');
+            }
+
+            showLoading(false);
+        }
+
+        async function logout() {
+            try {
+                await fetch(`${API_BASE}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+
+            currentUser = null;
+            userVotes.clear();
+            updateAuthUI();
+            loadArtworks();
+            showMessage('تم تسجيل الخروج', 'success');
+        }
+
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    updateAuthUI();
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+            }
+        }
+
+        function updateAuthUI() {
+            const authSection = document.getElementById('authSection');
+            const userInfo = document.getElementById('userInfo');
+            const uploadSection = document.getElementById('uploadSection');
+
+            if (currentUser) {
+                authSection.style.display = 'none';
+                userInfo.style.display = 'block';
+                uploadSection.style.display = 'block';
+                document.getElementById('currentUsername').textContent = currentUser.username;
+            } else {
+                authSection.style.display = 'block';
+                userInfo.style.display = 'none';
+                uploadSection.style.display = 'none';
+            }
+        }
+
+        function showLoginForm() {
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('registerForm').classList.remove('active');
+        }
+
+        function showRegisterForm() {
+            document.getElementById('registerForm').classList.add('active');
+            document.getElementById('loginForm').classList.remove('active');
+        }
+
+        // Categories Functions
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE}/categories`);
+                const data = await response.json();
+                categories = data.categories || [];
+                
+                const categorySelect = document.getElementById('artworkCategory');
+                categorySelect.innerHTML = '<option value="">اختر الفئة</option>';
+                
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    categorySelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        // Artworks Functions
+        async function loadArtworks() {
+            showLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE}/artworks`);
+                const data = await response.json();
+                artworks = data.artworks || [];
+                
+                displayArtworks();
+            } catch (error) {
+                console.error('Error loading artworks:', error);
+                showMessage('خطأ في تحميل الأعمال الفنية', 'error');
+            }
+
+            showLoading(false);
+        }
+
+        function displayArtworks() {
+            const container = document.getElementById('activitiesContainer');
+            
+            if (artworks.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; color: white; font-size: 1.2em;">
+                        لا توجد أعمال فنية متاحة حالياً
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = artworks.map(artwork => `
+                <div class="activity-card">
+                    <div class="activity-content">
+                        <div class="activity-title">${artwork.title}</div>
+                        <p>${artwork.description || 'لا يوجد وصف'}</p>
+                        <p><strong>الفنان:</strong> ${artwork.artist.username}</p>
+                        ${artwork.category ? `<p><strong>الفئة:</strong> ${artwork.category.name}</p>` : ''}
+                        ${artwork.file_path ? `<img src="${API_BASE.replace('/api', '')}${artwork.file_path}" alt="${artwork.title}" style="max-width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin: 10px 0;">` : ''}
+                    </div>
+                    <div class="vote-section">
+                        ${currentUser ? `
+                            <button class="vote-btn ${userVotes.has(artwork.id) ? 'voted' : ''}" 
+                                    onclick="toggleVote(${artwork.id})"
+                                    id="voteBtn${artwork.id}">
+                                ${userVotes.has(artwork.id) ? 'إلغاء التصويت' : 'صوت'}
+                            </button>
+                        ` : '<p style="color: #ccc;">يجب تسجيل الدخول للتصويت</p>'}
+                        <div class="vote-count">الأصوات: <span id="voteCount${artwork.id}">${artwork.vote_count || 0}</span></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function toggleVote(artworkId) {
+            if (!currentUser) {
+                showMessage('يجب تسجيل الدخول للتصويت', 'error');
+                return;
+            }
+
+            const voteBtn = document.getElementById(`voteBtn${artworkId}`);
+            const isVoted = userVotes.has(artworkId);
+            
+            voteBtn.disabled = true;
+            
+            try {
+                const method = isVoted ? 'DELETE' : 'POST';
+                const response = await fetch(`${API_BASE}/artworks/${artworkId}/vote`, {
+                    method,
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (isVoted) {
+                        userVotes.delete(artworkId);
+                        voteBtn.textContent = 'صوت';
+                        voteBtn.classList.remove('voted');
+                        showMessage('تم إلغاء التصويت', 'success');
+                    } else {
+                        userVotes.add(artworkId);
+                        voteBtn.textContent = 'إلغاء التصويت';
+                        voteBtn.classList.add('voted');
+                        showMessage('تم التصويت بنجاح', 'success');
+                    }
+                    
+                    document.getElementById(`voteCount${artworkId}`).textContent = data.vote_count;
+                    loadStatistics(); // Update statistics
+                } else {
+                    showMessage(data.error || 'فشل في التصويت', 'error');
+                }
+            } catch (error) {
+                showMessage('خطأ في الاتصال بالخادم', 'error');
+            }
+            
+            voteBtn.disabled = false;
+        }
+
+        async function uploadArtwork() {
+            if (!currentUser) {
+                showMessage('يجب تسجيل الدخول لإضافة عمل فني', 'error');
+                return;
+            }
+
+            const title = document.getElementById('artworkTitle').value;
+            const description = document.getElementById('artworkDescription').value;
+            const categoryId = document.getElementById('artworkCategory').value;
+            const file = document.getElementById('artworkFile').files[0];
+
+            if (!title || !file) {
+                showMessage('يرجى إدخال العنوان واختيار الملف', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('description', description);
+            if (categoryId) formData.append('category_id', categoryId);
+            formData.append('file', file);
+
+            showLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE}/artworks`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage('تم رفع العمل الفني بنجاح وهو في انتظار الموافقة', 'success');
+                    document.getElementById('uploadForm').reset();
+                    toggleUploadForm();
+                } else {
+                    showMessage(data.error || 'فشل في رفع العمل الفني', 'error');
+                }
+            } catch (error) {
+                showMessage('خطأ في الاتصال بالخادم', 'error');
+            }
+
+            showLoading(false);
+        }
+
+        // Statistics Functions
+        async function loadStatistics() {
+            try {
+                const response = await fetch(`${API_BASE}/statistics`);
+                const data = await response.json();
+                const stats = data.statistics || {};
+
+                document.getElementById('totalArtworks').textContent = stats.total_artworks || 0;
+                document.getElementById('totalVotes').textContent = stats.total_votes || 0;
+                document.getElementById('activeParticipants').textContent = stats.active_participants || 0;
+                document.getElementById('totalComments').textContent = stats.total_comments || 0;
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        // UI Helper Functions
+        function toggleUploadSection() {
+            const uploadSection = document.getElementById('uploadSection');
+            uploadSection.style.display = uploadSection.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleUploadForm() {
+            const uploadForm = document.getElementById('uploadForm');
+            uploadForm.classList.toggle('active');
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showMessage(message, type) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = message;
+            messageBox.className = `message ${type}`;
+            messageBox.style.display = 'block';
+            
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000);
+        }
+
+        // Auto-refresh statistics every 30 seconds
+        setInterval(loadStatistics, 30000);
+    </script>
+
+</body>
+</html>
